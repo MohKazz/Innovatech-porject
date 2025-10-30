@@ -1,0 +1,32 @@
+# Local .terraform directories
+.terraform/
+
+# Terraform state
+*.tfstate
+*.tfstate.*
+.crash*
+.terraform.tfstate.lock.info
+
+# Local overrides & plans
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.tfplan
+
+# Ignore provider plugins, caches, etc. (covered by .terraform/)
+# Keep the dependency lock file:
+# !.terraform.lock.hcl
+
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+*.tfvars
+terraform.tfvars
+keys and vars/
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+*.tfvars
+terraform.tfvars
+keys and vars/

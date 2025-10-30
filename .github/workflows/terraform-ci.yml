@@ -1,0 +1,53 @@
+name: Terraform CI
+on:
+  workflow_dispatch: {}
+  pull_request:
+    paths: [ "**/*.tf", ".github/workflows/terraform-ci.yml" ]
+  push:
+    branches: [ main ]
+    paths: [ "**/*.tf", ".github/workflows/terraform-ci.yml" ]
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: eu-central-1
+      AWS_PAGER: ""
+    defaults:
+      run:
+        working-directory: .
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform fmt (show diff but don’t fail)
+        run: terraform fmt -diff -recursive || true
+
+      - name: Configure AWS credentials (temp tokens)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token:     ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Terraform init (uses S3 backend)
+        run: terraform init -input=false
+
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Terraform plan (NO APPLY)
+        run: |
+          terraform plan -no-color -out=tfplan || true
+          terraform show -no-color tfplan > plan.txt || true
+
+      - name: Upload plan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: plan.txt

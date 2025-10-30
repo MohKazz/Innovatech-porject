@@ -1,0 +1,29 @@
+name: Terraform Apply
+on:
+  workflow_dispatch: {}
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: eu-central-1
+      AWS_PAGER: ""
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_version: 1.5.0 }
+
+      - name: Configure AWS credentials (temp tokens)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token:     ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Terraform init (S3 backend)
+        run: terraform init -input=false
+
+      - name: Terraform apply (auto-approve)
+        run: terraform apply -auto-approve
