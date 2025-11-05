@@ -8,6 +8,7 @@ jobs:
     env:
       AWS_REGION: eu-central-1
       AWS_PAGER: ""
+      TF_VAR_soc_email: ${{ secrets.SOC_EMAIL }} 
     steps:
       - uses: actions/checkout@v4
 
