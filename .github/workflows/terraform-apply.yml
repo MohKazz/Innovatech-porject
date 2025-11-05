@@ -1,6 +1,10 @@
 name: Terraform Apply
 on:
   workflow_dispatch: {}
+  
+concurrency: #Prevent overlapping runs on the same state
+  group: terraform-apply-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   apply:
@@ -27,4 +31,4 @@ jobs:
         run: terraform init -input=false
 
       - name: Terraform apply (auto-approve)
-        run: terraform apply -auto-approve
+        run: terraform apply -input=false -auto-approve -lock-timeout=5m
