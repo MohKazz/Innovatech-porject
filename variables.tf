@@ -5,7 +5,7 @@ variable "region" {
 
 variable "name" {
   type    = string
-  default = "cs1nca-dev"
+  default = "nca-innovatech-dev"
 }
 
 variable "vpc_cidr" {
@@ -21,12 +21,16 @@ variable "azs" {
 variable "tags" {
   type = map(string)
   default = {
-    project = "cs1nca"
+    project = "nca-innovatech"
     env     = "dev"
   }
 }
 
-
+variable "soc_email" {
+   type = string
+   default = "540149@student.fontys.nl"
+   }
+ 
 variable "db_username" {
   type    = string
   default = "admin_mo"
