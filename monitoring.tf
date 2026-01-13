@@ -65,7 +65,7 @@ amazon-linux-extras enable docker || true
 yum install -y docker
 systemctl enable --now docker
 
-# 2) Prometheus config (EC2 service discovery for Name=cs1nca-dev-web on 9100)
+# 2) Prometheus config (EC2 service discovery for Name=nca-dev-web on 9100)
 mkdir -p /opt/monitoring
 cat >/opt/monitoring/prometheus.yml <<'PYAML'
 global:
@@ -78,7 +78,7 @@ scrape_configs:
         port: 9100
         filters:
           - name: tag:Name
-            values: ["cs1nca-dev-web"]
+            values: ["nca-dev-web"]
     relabel_configs:
       - source_labels: [__meta_ec2_private_ip]
         target_label: instance
@@ -140,11 +140,6 @@ resource "aws_security_group_rule" "web_in_node_from_monitor" { # allow Promethe
 
 
 #outputs
-output "monitor_instance_id" { value = aws_instance.monitor.id }
-output "monitor_private_ip"  { value = aws_instance.monitor.private_ip }
-output "monitor_sg_id"       { value = aws_security_group.monitoring.id }
-
-
 output "monitor_public_ip"   { value = aws_eip.monitor.public_ip }
 output "monitor_public_dns"  { value = aws_instance.monitor.public_dns }
 
@@ -189,7 +184,7 @@ resource "aws_ssm_association" "node_exporter_install" {
 
   targets {
     key    = "tag:Name"
-    values = ["cs1nca-dev-web"]
+    values = ["nca-dev-web"]
   }
 
 }
