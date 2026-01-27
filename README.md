@@ -99,6 +99,7 @@ Now that you have the repository cloned to your local machine, you can proceed w
 
 ## Kubernetes:
 Keycloak is deployed on EKS and is used for employee management. To use it you need to manually configure it after the deployment. you can run it by typing the following commands:
+       
         kubectl apply -f  keycloak-namespace.yaml
         
         kubectl apply -f  1-postgres-keycloak.yaml
