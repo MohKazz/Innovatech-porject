@@ -28,14 +28,14 @@ variable "tags" {
 
 variable "soc_email" {
    type = string
-   default = "540149@student.fontys.nl"
+   default = "example@gmail.com"
    }
  
 variable "db_username" {
   type    = string
-  default = "admin_mo"
+  default = "admin"
 }
 variable "db_password" {
   type    = string
-  default = "admin_mo"
+  default = "admin"
 }
