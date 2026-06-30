@@ -1,8 +1,8 @@
 name: Terraform Apply
 on:
-  workflow_dispatch: {}
+  workflow_dispatch: {} # Manual trigger to initiate deployment
   
-concurrency: #Prevent overlapping runs on the same state
+concurrency: # Ensures only one apply job runs at a time for this branch
   group: terraform-apply-${{ github.ref }}
   cancel-in-progress: true
 
@@ -14,7 +14,7 @@ jobs:
       AWS_PAGER: ""
       TF_VAR_soc_email: ${{ secrets.SOC_EMAIL }} 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4 # Gets your infrastructure code
 
       - uses: hashicorp/setup-terraform@v3
         with: { terraform_version: 1.5.0 }
@@ -28,7 +28,9 @@ jobs:
           aws-region:            ${{ env.AWS_REGION }}
 
       - name: Terraform init (S3 backend)
-        run: terraform init -input=false
+        run: terraform init -input=false # Prepares environment and links to remote state
 
       - name: Terraform apply (auto-approve)
-        run: terraform apply -input=false -auto-approve -lock-timeout=5m
+        run: terraform apply -input=false -auto-approve -lock-timeout=5m 
+        # -auto-approve: Skips the manual "yes" confirmation
+        # -lock-timeout=5m: Waits 5 minutes for the state lock if another process is using it
