@@ -1,10 +1,10 @@
 name: Terraform CI
 on:
-  workflow_dispatch: {}
+  workflow_dispatch: {} # Allows manual triggering of the pipeline
   pull_request:
-    paths: [ "**/*.tf", ".github/workflows/terraform-ci.yml" ]
+    paths: [ "**/*.tf", ".github/workflows/terraform-ci.yml" ] # Only runs if Terraform files change
   push:
-    branches: [ main ]
+    branches: [ main ] # Runs automatically when merging to main
     paths: [ "**/*.tf", ".github/workflows/terraform-ci.yml" ]
 
 jobs:
@@ -12,24 +12,24 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_REGION: eu-central-1
-      AWS_PAGER: ""
-      TF_VAR_soc_email: ${{ secrets.SOC_EMAIL }} 
+      AWS_PAGER: "" # Prevents Terraform from pausing for user input during execution
+      TF_VAR_soc_email: ${{ secrets.SOC_EMAIL }} # Injects sensitive info as a Terraform variable
     defaults:
       run:
         working-directory: .
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4 # Downloads code from the repository
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v3 # Installs the specified Terraform binary
         with:
           terraform_version: 1.5.0
 
       - name: Terraform fmt (show diff but don’t fail)
-        run: terraform fmt -diff -recursive || true
+        run: terraform fmt -diff -recursive || true # Checks code style; doesn't break build if unformatted
 
       - name: Configure AWS credentials (temp tokens)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v4 # Authenticates with AWS using secrets
         with:
           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -37,18 +37,18 @@ jobs:
           aws-region:            ${{ env.AWS_REGION }}
 
       - name: Terraform init (uses S3 backend)
-        run: terraform init -input=false
+        run: terraform init -input=false # Initializes working directory and remote state
 
       - name: Terraform validate
-        run: terraform validate
+        run: terraform validate # Checks for syntax errors in your code
 
       - name: Terraform plan (NO APPLY)
         run: |
-          terraform plan -no-color -out=tfplan || true
-          terraform show -no-color tfplan > plan.txt || true
+          terraform plan -no-color -out=tfplan || true # Generates execution plan without applying
+          terraform show -no-color tfplan > plan.txt || true # Saves human-readable plan to a text file
 
       - name: Upload plan artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4 # Saves the plan file so you can review it in the GitHub UI
         with:
           name: terraform-plan
           path: plan.txt
